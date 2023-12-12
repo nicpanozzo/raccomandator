@@ -13,7 +13,7 @@ object popMov {
     // Create a SparkContext using every core of the local machine
     val sc = new SparkContext("local[*]", "PopularMovies")
 
-    sc.setLogLevel("WARN")
+    sc.setLogLevel("INFO")
     // Read in each rating line
     val lines = sc.textFile("datasets/u.data")
 
