@@ -2,6 +2,8 @@ To create and execute the jar do the following:
 ```
 sbt assembly
 java -jar target/scala-2.13/raccomandator_2.13-0.1.0-SNAPSHOT.jar
+OR
+spark-submit target/scala-2.13/raccomandator-assembly-0.1.1-SNAPSHOT.jar  
 ```
 
 To create a cluster on dataproc:
@@ -64,3 +66,5 @@ creare uno script che crea il jar e lo copia nel bucket
 - [ ] aggiungere il file di configurazione per il cluster
 - [ ] aggiungere il file di configurazione per il bucket
 - [ ] aggiungere il file di configurazione per il job
+
+configurare ambienti locale, low cost, high performance e dataset differenti     
