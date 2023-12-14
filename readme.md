@@ -1,5 +1,7 @@
+# Raccomandator
 
-STEPS:
+Un sistema di raccomandazioni per film basato su collaborative filtering. Il sistema è stato sviluppato in scala e utilizza Spark per il calcolo distribuito. Il dataset utilizzato è MovieLens 100k.
+## STEPS:
 - ### creare un jar
 ```
   sbt assembly
@@ -20,42 +22,42 @@ per eseguirlo in locale:
 ./delete_cluster.sh
 ```
 
-COMANDI UTILI:
-**creare un jar**
+## COMANDI UTILI:
+- **creare un jar**
 ```
 sbt assembly
 ```
-**creare un bucket**
+- **creare un bucket**
 ```
 gcloud storage buckets create gs://raccomandator
 ```
-**copiare il jar nel bucket**
+- **copiare il jar nel bucket**
 ```
 gsutil cp target/scala-2.13/raccomandator-assembly-0.1.1-SNAPSHOT.jar gs://raccomandator
 ```
-**copiare i dati nel bucket**
+- **copiare i dati nel bucket**
 ```
 gsutil cp datasets/u.data gs://raccomandator
 ```
-**creare un cluster**
+- **creare un cluster**
 ```
 gcloud dataproc clusters import racclu --source cluster.yaml --region=us-central1
 ```
-**creare un job**
+- **creare un job**
 ```
 gcloud dataproc jobs submit spark --cluster=racclu --region=us-central1 --jar=target/scala-2.12/raccomandator-assembly-0.1.1-SNAPSHOT.jar
 ```
-**eliminare il cluster**
+- **eliminare il cluster**
 ```
 gcloud dataproc clusters delete racclu --region=us-central1
 ```
-**eliminare il bucket**
+- **eliminare il bucket**
 ```
 gsutil rm -r gs://raccomandator
 ```
 
 
-#TODO
+# TODO
 - [ ] configurare ambienti locale, low cost, high performance e dataset differenti   
 
 
