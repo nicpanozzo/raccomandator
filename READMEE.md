@@ -58,7 +58,7 @@ gsutil rm -r gs://raccomandator
 
 
 # TODO
-- [ ] configurare ambienti locale, low cost, high performance e dataset differenti   
+- [ ] configurare ambienti locale, low cost, high performance e dataset differenti  
 
 
 
