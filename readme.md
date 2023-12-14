@@ -43,6 +43,9 @@ gcloud storage buckets create gs://BUCKET_NAME
 To submit a Spark job that runs the main class of a jar, run:
 
 gcloud dataproc jobs submit spark --cluster=my-cluster --region=us-central1 --jar=my_jar.jar -- arg1 arg2
+
+gcloud dataproc jobs submit spark --cluster=racclu --region=us-central1 --jar=target/scala-2.12/raccomandator-assembly-0.1.1-SNAPSHOT.jar
+
 To submit a Spark job that runs a specific class of a jar, run:
 
 
@@ -67,4 +70,24 @@ creare uno script che crea il jar e lo copia nel bucket
 - [ ] aggiungere il file di configurazione per il bucket
 - [ ] aggiungere il file di configurazione per il job
 
-configurare ambienti locale, low cost, high performance e dataset differenti     
+configurare ambienti locale, low cost, high performance e dataset differenti   
+
+
+
+Steps:
+- [ ] creare un jar
+  sbt assembly
+- [ ] creare un bucket
+  gcloud storage buckets create gs://raccomandator
+- [ ] copiare il jar nel bucket
+  gsutil cp target/scala-2.13/raccomandator-assembly-0.1.1-SNAPSHOT.jar gs://raccomandator
+- [ ] copiare i dati nel bucket
+  gsutil cp datasets/u.data gs://raccomandator
+- [ ] creare un cluster
+  gcloud dataproc clusters import racclu --source cluster.yaml --region=us-central1
+- [ ] creare un job
+  gcloud dataproc jobs submit spark --cluster=racclu --region=us-central1 --jar=target/scala-2.12/raccomandator-assembly-0.1.1-SNAPSHOT.jar
+- [ ] eliminare il cluster
+  gcloud dataproc clusters delete racclu --region=us-central1
+- [ ] eliminare il bucket
+  gsutil rm -r gs://raccomandator

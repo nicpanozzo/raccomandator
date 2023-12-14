@@ -1,0 +1,106 @@
+config:
+  configBucket: raccomandator
+  encryptionConfig: {}
+  endpointConfig:
+    enableHttpPortAccess: true
+    httpPorts:
+      HDFS NameNode: https://2gpzk4zfvrfk7pzmbmip72ijdu-dot-us-central1.dataproc.googleusercontent.com/hdfs/dfshealth.html
+      MapReduce Job History: https://2gpzk4zfvrfk7pzmbmip72ijdu-dot-us-central1.dataproc.googleusercontent.com/jobhistory/
+      Spark History Server: https://2gpzk4zfvrfk7pzmbmip72ijdu-dot-us-central1.dataproc.googleusercontent.com/sparkhistory/
+      Tez: https://2gpzk4zfvrfk7pzmbmip72ijdu-dot-us-central1.dataproc.googleusercontent.com/apphistory/tez-ui/
+      YARN Application Timeline: https://2gpzk4zfvrfk7pzmbmip72ijdu-dot-us-central1.dataproc.googleusercontent.com/apphistory/
+      YARN ResourceManager: https://2gpzk4zfvrfk7pzmbmip72ijdu-dot-us-central1.dataproc.googleusercontent.com/yarn/
+  gceClusterConfig:
+    internalIpOnly: false
+    networkUri: https://www.googleapis.com/compute/v1/projects/raccomandator/global/networks/default
+    serviceAccountScopes:
+    - https://www.googleapis.com/auth/cloud-platform
+    shieldedInstanceConfig:
+      enableIntegrityMonitoring: false
+      enableSecureBoot: false
+      enableVtpm: false
+    zoneUri: https://www.googleapis.com/compute/v1/projects/raccomandator/zones/us-central1-b
+  lifecycleConfig:
+    idleDeleteTtl: 2700s
+  masterConfig:
+    diskConfig:
+      bootDiskSizeGb: 50
+      bootDiskType: pd-standard
+      localSsdInterface: SCSI
+    imageUri: https://www.googleapis.com/compute/v1/projects/cloud-dataproc/global/images/dataproc-2-1-deb11-20231128-155100-rc01
+    machineTypeUri: https://www.googleapis.com/compute/v1/projects/raccomandator/zones/us-central1-b/machineTypes/n1-standard-2
+    minCpuPlatform: AUTOMATIC
+    numInstances: 1
+    preemptibility: NON_PREEMPTIBLE
+  securityConfig:
+    kerberosConfig: {}
+  softwareConfig:
+    imageVersion: 2.1.33-debian11
+    properties:
+      capacity-scheduler:yarn.scheduler.capacity.root.default.ordering-policy: fair
+      core:fs.gs.block.size: '134217728'
+      core:fs.gs.metadata.cache.enable: 'false'
+      core:hadoop.ssl.enabled.protocols: TLSv1,TLSv1.1,TLSv1.2
+      distcp:mapreduce.map.java.opts: -Xmx576m
+      distcp:mapreduce.map.memory.mb: '768'
+      distcp:mapreduce.reduce.java.opts: -Xmx576m
+      distcp:mapreduce.reduce.memory.mb: '768'
+      hadoop-env:HADOOP_DATANODE_OPTS: -Xmx512m
+      hdfs:dfs.datanode.address: 0.0.0.0:9866
+      hdfs:dfs.datanode.http.address: 0.0.0.0:9864
+      hdfs:dfs.datanode.https.address: 0.0.0.0:9865
+      hdfs:dfs.datanode.ipc.address: 0.0.0.0:9867
+      hdfs:dfs.namenode.handler.count: '20'
+      hdfs:dfs.namenode.http-address: 0.0.0.0:9870
+      hdfs:dfs.namenode.https-address: 0.0.0.0:9871
+      hdfs:dfs.namenode.secondary.http-address: 0.0.0.0:9868
+      hdfs:dfs.namenode.secondary.https-address: 0.0.0.0:9869
+      hdfs:dfs.namenode.service.handler.count: '10'
+      mapred-env:HADOOP_JOB_HISTORYSERVER_HEAPSIZE: '1920'
+      mapred:mapreduce.job.maps: '9'
+      mapred:mapreduce.job.reduce.slowstart.completedmaps: '0.95'
+      mapred:mapreduce.job.reduces: '3'
+      mapred:mapreduce.jobhistory.recovery.store.class: org.apache.hadoop.mapreduce.v2.hs.HistoryServerLeveldbStateStoreService
+      mapred:mapreduce.map.cpu.vcores: '1'
+      mapred:mapreduce.map.java.opts: -Xmx2457m
+      mapred:mapreduce.map.memory.mb: '3072'
+      mapred:mapreduce.reduce.cpu.vcores: '1'
+      mapred:mapreduce.reduce.java.opts: -Xmx2457m
+      mapred:mapreduce.reduce.memory.mb: '3072'
+      mapred:mapreduce.task.io.sort.mb: '256'
+      mapred:yarn.app.mapreduce.am.command-opts: -Xmx2457m
+      mapred:yarn.app.mapreduce.am.resource.cpu-vcores: '1'
+      mapred:yarn.app.mapreduce.am.resource.mb: '3072'
+      spark-env:SPARK_DAEMON_MEMORY: 1920m
+      spark:spark.driver.maxResultSize: 960m
+      spark:spark.driver.memory: 1920m
+      spark:spark.executor.cores: '1'
+      spark:spark.executor.instances: '2'
+      spark:spark.executor.memory: 2688m
+      spark:spark.executorEnv.OPENBLAS_NUM_THREADS: '1'
+      spark:spark.scheduler.mode: FAIR
+      spark:spark.sql.cbo.enabled: 'true'
+      spark:spark.sql.optimizer.runtime.bloomFilter.join.pattern.enabled: 'true'
+      spark:spark.ui.port: '0'
+      spark:spark.yarn.am.memory: 640m
+      yarn-env:YARN_NODEMANAGER_HEAPSIZE: '768'
+      yarn-env:YARN_RESOURCEMANAGER_HEAPSIZE: '1920'
+      yarn-env:YARN_TIMELINESERVER_HEAPSIZE: '1920'
+      yarn:yarn.nodemanager.address: 0.0.0.0:8026
+      yarn:yarn.nodemanager.resource.cpu-vcores: '2'
+      yarn:yarn.nodemanager.resource.memory-mb: '6144'
+      yarn:yarn.resourcemanager.decommissioning-nodes-watcher.decommission-if-no-shuffle-data: 'true'
+      yarn:yarn.resourcemanager.nodemanager-graceful-decommission-timeout-secs: '86400'
+      yarn:yarn.scheduler.maximum-allocation-mb: '6144'
+      yarn:yarn.scheduler.minimum-allocation-mb: '1'
+  tempBucket: dataproc-temp-us-central1-685228200795-i28nlt1x
+  workerConfig:
+    diskConfig:
+      bootDiskSizeGb: 50
+      bootDiskType: pd-standard
+      localSsdInterface: SCSI
+    imageUri: https://www.googleapis.com/compute/v1/projects/cloud-dataproc/global/images/dataproc-2-1-deb11-20231128-155100-rc01
+    machineTypeUri: https://www.googleapis.com/compute/v1/projects/raccomandator/zones/us-central1-b/machineTypes/n1-standard-2
+    minCpuPlatform: AUTOMATIC
+    numInstances: 2
+    preemptibility: NON_PREEMPTIBLE

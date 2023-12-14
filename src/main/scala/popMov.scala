@@ -15,7 +15,10 @@ object popMov {
 
     sc.setLogLevel("INFO")
     // Read in each rating line
-    val lines = sc.textFile("datasets/u.data")
+//    read file from bucket
+
+    val lines = sc.textFile("gs://raccomandator/u.data")
+//    val lines = sc.textFile("datasets/u.data")
 
     // Map to (movieID, 1) tuples
     val movies = lines.map(x => (x.split("\t")(1).toInt, 1))

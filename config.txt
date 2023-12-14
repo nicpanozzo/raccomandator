@@ -1,0 +1,9 @@
+param1=value_from_config
+param2=value_from_config
+param3=value_from_config
+bucketName="bucketName"
+jarFile="target/scala-2.12/raccomandator-assembly-0.1.1-SNAPSHOT.jar"
+data="datasets/u.data"
+clusterName="racclu"
+clusterYaml="cluster.yaml"
+region="us-central1"
