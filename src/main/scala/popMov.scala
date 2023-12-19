@@ -14,11 +14,13 @@ object popMov {
     val sc = new SparkContext("local[*]", "PopularMovies")
 
     sc.setLogLevel("INFO")
-    // Read in each rating line
-//    read file from bucket
 
-    val lines = sc.textFile("gs://raccomandator/u.data")
-//    val lines = sc.textFile("datasets/u.data")
+    val dataPath = if (sc.master == "local[*]") {
+      "datasets/"
+    } else {
+      "gs://raccomandator/"
+    }
+    val lines = sc.textFile(dataPath + "u.data")
 
     // Map to (movieID, 1) tuples
     val movies = lines.map(x => (x.split("\t")(1).toInt, 1))

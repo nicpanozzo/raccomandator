@@ -1,0 +1,20 @@
+Loading movie names...
+
+Training recommendation model...
+
+Ratings for user ID 0:
+Star Wars (1977): 5.0
+Empire Strikes Back, The (1980): 5.0
+Gone with the Wind (1939): 1.0
+
+Top 10 recommendations:
+Tough and Deadly (1995) score 7.307368855335232
+Schizopolis (1996) score 7.059022713593196
+Roommates (1995) score 7.050260127233702
+Crooklyn (1994) score 6.721175660298146
+In the Realm of the Senses (Ai no corrida) (1976) score 6.6964767734008355
+unknown score 6.6954737042658
+Mighty Morphin Power Rangers: The Movie (1995) score 6.474726246724954
+Low Down Dirty Shame, A (1994) score 6.471697217975467
+Waiting to Exhale (1995) score 6.469535372212519
+Harlem (1993) score 6.458010653011503

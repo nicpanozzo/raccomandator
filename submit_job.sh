@@ -5,6 +5,7 @@ jarFile="target/scala-2.12/raccomandator-assembly-0.1.1-SNAPSHOT.jar"
 clusterName="racclu"
 region="us-central1"
 config_file="config.txt"
+extraJavaOptionExecutor="-Xss256m"
 
 # Function to display script usage
 usage() {
@@ -14,6 +15,7 @@ usage() {
   echo "  -n <clusterName>   Specify the cluster name"
   echo "  -r <region>        Specify the region"
   echo "  -j <jarFile>       Specify the jar file"
+  echo "  -e <conf>          Specify the extraJavaOption conf on the executor"
   echo "  -h                 Display this help message"
   exit 1
 }
@@ -37,6 +39,7 @@ while getopts ":c:n:r:j:h" opt; do
     n) clusterName="$OPTARG";;
     r) region="$OPTARG";;
     j) jarFile="$OPTARG";;
+    e) conf="$OPTARG";;
     h) usage;;
     \?) echo "Invalid option: -$OPTARG" >&2; usage;;
   esac
@@ -45,7 +48,7 @@ done
 # Your script logic goes here
 #or take the jar file from the bucket
 # echo " gcloud dataproc jobs submit spark --cluster=$clusterName --region=$region --jar=gs://$bucketName/$jarFile"
-echo " gcloud dataproc jobs submit spark --cluster=$clusterName --region=$region --jar=$jarFile"
+echo " gcloud dataproc jobs submit spark --cluster=$clusterName --region=$region --jar=$jarFile --conf=$extraJavaOptionExecutor"
 
 # Example usage:
 # ./script.sh -c my_config.txt -a value1 -b value2 -d value3
