@@ -5,7 +5,7 @@ import org.apache.spark._
 object popMov {
 
   /** Our main function where the action happens */
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
 
     // Set the log level to only print errors
     Logger.getLogger("org").setLevel(Level.INFO)
