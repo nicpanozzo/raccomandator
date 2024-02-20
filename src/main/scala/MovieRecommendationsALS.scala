@@ -56,7 +56,7 @@ object MovieRecommendationsALS {
     
     val model = ALS.train(ratings, rank, numIterations)
     
-    val userID = 9999
+    val userID = args(0).toInt
     
     println("\nRatings for user ID " + userID + ":")
 

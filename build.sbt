@@ -2,7 +2,7 @@ ThisBuild / version := "0.1.2-SNAPSHOT"
 
 ThisBuild / scalaVersion := "2.12.18"
 
-assembly / mainClass := Some("MovieSimilarities1M")
+assembly / mainClass := Some("UserSimilarities")
 
 lazy val root = (project in file("."))
   .settings(

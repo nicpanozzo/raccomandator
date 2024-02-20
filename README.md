@@ -63,5 +63,9 @@ gsutil rm -r gs://raccomandator
 - [ ] modificare SC che prenda in input un utente(cioè basi la raccomandazione su una serie di recensioni e non su un film). Idea: Vettorializzare gli utenti e trovare i piu vicini
 - [ ] unire ML e SC ponderando gli score
 
+- [ ] filtrare utenti con poche recensioni (pre cosine similarity)
+
+- [ ] aggiungere threshold per le co occorrenze (post cosine similarity)
+
 
 
