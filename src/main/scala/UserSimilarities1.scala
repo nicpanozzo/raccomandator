@@ -4,7 +4,7 @@ import scala.io.Codec
 
 object UserSimilarities1 {
 
-    val coOccuranceThreshold = 0.0
+    val coOccuranceThreshold = 1.0
     val ratingThreshold = 4.0
     val numReviewsThreshold = 1
     val numSimilarUsers = 5
@@ -97,15 +97,39 @@ object UserSimilarities1 {
     val userRatings = allUserRatings // .filter(_._2.size > numReviewsThreshold)
 
     // Create index mappings for users and movies
-    val usersMapIndex: Map[String, Int] = userRatings.keys.zipWithIndex.toMap
-    val moviesMapIndex: Map[String, Int] = movies.map(_._1.toString).zipWithIndex.toMap
+    val usersMapIdToIndex: Map[String, Int] = userRatings.keys.zipWithIndex.toMap
+    val moviesMapIdToIndex: Map[String, Int] = movies.map(_._1.toString).zipWithIndex.toMap
+
+
+    var userReviews = userRatings.mapValues(x => Array.fill(movies.size)(0.0))
+
+
+    for (user <- userRatings) {
+      val userId = user._1
+      
+      for (ratingPair <- user._2) {
+        val ratingScore = ratingPair._2
+        val movieId = ratingPair._1.toString()
+        userReviews = userReviews.updated(userId, userReviews(userId).updated(moviesMapIdToIndex(movieId), ratingScore))
+
+      }
+    }
+
+
+    // print user reviews filled with 0s and scores
+    println("userReviews")
+    userReviews.foreach(x => println(x._1 + " " + x._2.mkString(" ")))
+
+    println("moviesMapIdToIndex")
+    println()
+    println(moviesMapIdToIndex)
 
     // Create user-movie rating matrix
     val matrix: Array[Array[Double]] = Array.ofDim[Double](userRatings.count(_ => true), movies.count(_ => true))
     val userMatrix = matrix.map(x => x.map(y => 0.0))
     for (user <- userRatings) {
       for (rating <- user._2) {
-        userMatrix(usersMapIndex(user._1))(moviesMapIndex(rating._1.toString())) = rating._2
+        userMatrix(usersMapIdToIndex(user._1))(moviesMapIdToIndex(rating._1.toString())) = rating._2
       }
     }
 
@@ -113,11 +137,11 @@ object UserSimilarities1 {
 
     val userID = args(0).toInt
 
-    if (!usersMapIndex.contains(userID.toString)) {
+    if (!usersMapIdToIndex.contains(userID.toString)) {
       println("User ID not found")
       return
     }
-    val userMatrixReviews = userMatrix(usersMapIndex(userID.toString))
+    val userMatrixReviews = userMatrix(usersMapIdToIndex(userID.toString))
     
     var filteredUserRatings = allUserRatings.filter(_._2.size > numReviewsThreshold)
 
@@ -138,7 +162,7 @@ object UserSimilarities1 {
     val filteredUserMatrix = filteredMatrix.map(x => x.map(y => 0.0))
     for (user <- filteredUserRatings) {
       for (rating <- user._2) {
-        filteredUserMatrix(filteredUsersMapIndex(user._1))(moviesMapIndex(rating._1.toString())) = rating._2
+        filteredUserMatrix(filteredUsersMapIndex(user._1))(moviesMapIdToIndex(rating._1.toString())) = rating._2
       }
     }
 
@@ -148,15 +172,27 @@ object UserSimilarities1 {
     // Compute cosine similarity for each user
     val similarities = filteredUserMatrix.map(x => (x, computeCosineSimilarity(x, userMatrixReviews)))
 
+    // Map similarities to index
+    val mappedSimilarities = similarities.zipWithIndex.map(x => (x._2, x._1._2)).filter(_._2._2 > coOccuranceThreshold)
+    mappedSimilarities.foreach(x => println(x._1 + " " + x._2))
+
     // filter out users with less than coOccuranceThreshold co-occurrences
-    .filter(_._2._2 > coOccuranceThreshold)
+    // .filter(_._2._2 > coOccuranceThreshold)
 
     // Print similarities
     similarities.foreach(x => println(x._2))
 
     // Find the most similar user to user 3
-    val mostSimilarUser = similarities.maxBy(_._2)
-
+    val mostSimilarUser = mappedSimilarities.maxBy(_._2._1)
+    println("mostSimilarUser")
     println(mostSimilarUser)
+
+    // val mostSimilarUserIndex = filteredUsersMapIndex.groupBy(_._2).mapValues(_.keys)(mostSimilarUser._1).last
+    // println("mostSimilarUserIndex")
+    // println(mostSimilarUserIndex)
+    
+    // println("usersMapIndex")
+    // println(usersMapIndex)
+    // println(usersMapIndex.groupBy(_._2).mapValues(_.keys)(mostSimilarUserIndex.toInt))
   }
 }
