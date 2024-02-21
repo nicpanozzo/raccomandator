@@ -1,6 +1,8 @@
 import scala.io.Source
 import java.nio.charset.CodingErrorAction
 import scala.io.Codec
+import org.apache.spark.SparkContext
+import org.apache.spark.rdd.RDD
 
 object UserSimilarities1 {
 
@@ -24,7 +26,7 @@ object UserSimilarities1 {
     // Create a Map of Ints to Strings, and populate it from movies.dat file.
     var movieNames:Map[Int, String] = Map()
     
-    val lines = Source.fromFile(dataPath + "movies.dat").getLines()
+    val lines = Source.fromFile(dataPath + "moviesProva.dat").getLines()
     for (line <- lines) {
       var fields = line.split("::")
       if (fields.length > 1) {
@@ -35,6 +37,18 @@ object UserSimilarities1 {
     return movieNames
   }
 
+  def mapToArray[K](inputMap: Map[K, Double], arrayLength: Int, defaultValue: Double): Array[Double] = {
+  // Initialize an array with default values
+  val resultArray = Array.fill(arrayLength)(0.0)
+
+  // Update the array with values from the map
+  inputMap.foreach { case (key, value) =>
+    val index = key.asInstanceOf[Int] // Assuming the keys are integers, adjust if needed
+    resultArray(index) = value
+  }
+
+  resultArray
+}
   /**
    * Computes the cosine similarity between two vectors.
    * v1: First vector.
@@ -66,54 +80,75 @@ object UserSimilarities1 {
   
   def main(args: Array[String]): Unit = {
 
-    // Path to the directory containing the movie data files
-    val dataPath = "datasets/"
+
+    val sc = new SparkContext("local[*]", "MovieSimilarities1M")
+
+    println("\nLoading movie names...")
     
+    // Path to the directory containing the movie data files
+    val dataPath = if (sc.master == "local[*]") {
+      "datasets/"
+    } else {
+      "gs://raccomandator/"
+    }
+
     // Load movie names from movies.dat file
     val nameDict = loadMovieNames(dataPath)
+    
+    val ratingsData = sc.textFile(dataPath + "ratingsProva.dat")
+    val ratings = ratingsData.map(l => l.split("::")).map(l => (l(0).toInt, (l(1).toInt, l(2).toDouble)))
+
 
     // Example data for demonstration purposes
-    val dataTxt = """1::10::5::900909
-1::11::5::900909
-2::11::1::900909
-3::10::5::909090090
-3::11::1::909090090"""
+//     val dataTxt = """1::10::5::900909
+// 1::11::5::900909
+// 2::11::1::900909
+// 3::10::5::909090090
+// 3::11::1::909090090"""
 
     // (UserID, (MovieID, Rating))
-    val data = dataTxt.split('\n').map(l => l.split("::")).map(l => (l(0).toInt, (l(1).toInt, l(2).toDouble)))
+    // val data = dataTxt.split('\n').map(l => l.split("::")).map(l => (l(0).toInt, (l(1).toInt, l(2).toDouble)))
 
     // Example movie data for demonstration purposes
-    val moviesTxt = """10::GoldenEye (1995)::Action|Adventure|Thriller
-11::American President, The (1995)::Comedy|Drama|Romance
-12::Dracula: Dead and Loving It (1995)::Comedy|Horror"""
+//     val moviesTxt = """10::GoldenEye (1995)::Action|Adventure|Thriller
+// 11::American President, The (1995)::Comedy|Drama|Romance
+// 12::Dracula: Dead and Loving It (1995)::Comedy|Horror"""
 
     // (MovieID, MovieName)
-    val movies = moviesTxt.split('\n').map(l => l.split("::")).map(l => (l(0).toInt, l(1)))
+    // val movies = moviesTxt.split('\n').map(l => l.split("::")).map(l => (l(0).toInt, l(1)))
+
+    val moviesData = sc.textFile(dataPath + "moviesProva.dat")
+    val movies = moviesData.map(l => l.split("::")).map(l => (l(0).toInt, l(1)))
+
+    val moviesIndexList = nameDict.map(x => x._1).toList
+
+    val moviesSize = movies.count().toInt
+
 
     // Group ratings by user ID, filter out users with less than numReviewsThreshold reviews
-    val allUserRatings: Map[String, Iterable[(Int, Double)]] = data.groupBy(_._1.toString).mapValues(_.map(_._2))    
+    val allUserRatings: RDD[(String, Iterable[(Int, Double)])] = ratings.groupBy(_._1.toString).mapValues(_.map(_._2))    
 
     // Filter out users with less than numReviewsThreshold reviews
     val userRatings = allUserRatings // .filter(_._2.size > numReviewsThreshold)
 
     // Create index mappings for users and movies
-    val usersMapIdToIndex: Map[String, Int] = userRatings.keys.zipWithIndex.toMap
-    val moviesMapIdToIndex: Map[String, Int] = movies.map(_._1.toString).zipWithIndex.toMap
+    // val usersMapIdToIndex: Map[String, Int] = userRatings.keys.zipWithIndex.toMap
+    // val moviesMapIdToIndex: Map[String, Int] = movies.map(_._1.toString).zipWithIndex.toMap
+
+    var userReviews = userRatings.mapValues(x => Array.fill(moviesSize)(0.0))
+
+    val useR = userRatings.map(x => (x._1, x._2.map(x => (moviesIndexList.indexOf(x._1), x._2))))
+
+    // print useR
+    println("useR")
+    useR.foreach(x => println(x._1 + " " + x._2.mkString(" ")))
+    // Fill userReviews with user ratings
+    userReviews = useR.mapValues(x => mapToArray(x.toMap, moviesSize, 0.0))
+
+   
 
 
-    var userReviews = userRatings.mapValues(x => Array.fill(movies.size)(0.0))
 
-
-    for (user <- userRatings) {
-      val userId = user._1
-      
-      for (ratingPair <- user._2) {
-        val ratingScore = ratingPair._2
-        val movieId = ratingPair._1.toString()
-        userReviews = userReviews.updated(userId, userReviews(userId).updated(moviesMapIdToIndex(movieId), ratingScore))
-
-      }
-    }
 
 
     // print user reviews filled with 0s and scores
@@ -122,16 +157,15 @@ object UserSimilarities1 {
 
     println("moviesMapIdToIndex")
     println()
-    println(moviesMapIdToIndex)
 
 
     val userID = args(0).toInt
 
-    if (!usersMapIdToIndex.contains(userID.toString)) {
+    if (useR.lookup(userID.toString).isEmpty) {
       println("User ID not found")
       return
     }
-    val userMatrixReviews = userReviews(userID.toString)
+    val userMatrixReviews = userReviews.lookup(userID.toString).headOption.getOrElse(Array.empty[Double])
     
     var filteredUserRatings = userReviews.filter(x => x._2.filter(x => x != 0.0).size > numReviewsThreshold)
 
@@ -141,7 +175,7 @@ object UserSimilarities1 {
     }
 
     // remove user from filteredUserRatings
-    filteredUserRatings = filteredUserRatings - userID.toString
+    filteredUserRatings = filteredUserRatings.filter(x => x._1 != userID.toString)
 
 
     // Print the user-movie rating matrix
@@ -159,7 +193,7 @@ object UserSimilarities1 {
     similarities.foreach(x => println(x._2))
 
     // Find the most similar user to user 3
-    val mostSimilarUser = similarities.maxBy(_._2._1)
+    val mostSimilarUser = similarities.collect().maxBy(_._2._1)
     println("mostSimilarUser")
     println(mostSimilarUser)
   }

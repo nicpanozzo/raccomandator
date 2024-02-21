@@ -66,7 +66,7 @@ gsutil rm -r gs://raccomandator
 - [x] filtrare utenti con poche recensioni (pre cosine similarity)
 
 - [x] aggiungere threshold per le co occorrenze (post cosine similarity)
-- [ ] rifare la seconda matrice cosi che usi la map 
+- [x] rifare la seconda matrice cosi che usi la map 
 
 
 
