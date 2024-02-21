@@ -4,9 +4,9 @@ import scala.io.Codec
 
 object UserSimilarities1 {
 
-    val coOccuranceThreshold = 1.0
+    val coOccuranceThreshold = 0.0
     val ratingThreshold = 4.0
-    val numReviewsThreshold = 1
+    val numReviewsThreshold = 0
     val numSimilarUsers = 5
     val numRecommendations = 10
   
@@ -124,16 +124,6 @@ object UserSimilarities1 {
     println()
     println(moviesMapIdToIndex)
 
-    // Create user-movie rating matrix
-    val matrix: Array[Array[Double]] = Array.ofDim[Double](userRatings.count(_ => true), movies.count(_ => true))
-    val userMatrix = matrix.map(x => x.map(y => 0.0))
-    for (user <- userRatings) {
-      for (rating <- user._2) {
-        userMatrix(usersMapIdToIndex(user._1))(moviesMapIdToIndex(rating._1.toString())) = rating._2
-      }
-    }
-
-
 
     val userID = args(0).toInt
 
@@ -141,9 +131,9 @@ object UserSimilarities1 {
       println("User ID not found")
       return
     }
-    val userMatrixReviews = userMatrix(usersMapIdToIndex(userID.toString))
+    val userMatrixReviews = userReviews(userID.toString)
     
-    var filteredUserRatings = allUserRatings.filter(_._2.size > numReviewsThreshold)
+    var filteredUserRatings = userReviews.filter(x => x._2.filter(x => x != 0.0).size > numReviewsThreshold)
 
     if (filteredUserRatings.isEmpty) {
       println("No users with more than " + numReviewsThreshold + " reviews found")
@@ -151,48 +141,26 @@ object UserSimilarities1 {
     }
 
     // remove user from filteredUserRatings
-    filteredUserRatings = allUserRatings.filter(_._1 != userID.toString)
+    filteredUserRatings = filteredUserRatings - userID.toString
 
 
-    // Create user-movie rating matrix
-
-    val filteredUsersMapIndex: Map[String, Int] = filteredUserRatings.keys.zipWithIndex.toMap
-    
-    val filteredMatrix: Array[Array[Double]] = Array.ofDim[Double](filteredUserRatings.count(_ => true), movies.count(_ => true))
-    val filteredUserMatrix = filteredMatrix.map(x => x.map(y => 0.0))
-    for (user <- filteredUserRatings) {
-      for (rating <- user._2) {
-        filteredUserMatrix(filteredUsersMapIndex(user._1))(moviesMapIdToIndex(rating._1.toString())) = rating._2
-      }
-    }
-
-       // Print the user-movie rating matrix
-    filteredUserMatrix.foreach(x => println(x.mkString(" ")))
+    // Print the user-movie rating matrix
+    println("filteredUserMatrix")
+    filteredUserRatings.foreach(x => println(x._1 + " " + x._2.mkString(" ")))
 
     // Compute cosine similarity for each user
-    val similarities = filteredUserMatrix.map(x => (x, computeCosineSimilarity(x, userMatrixReviews)))
+    val similarities = filteredUserRatings.map(x => (x._1, computeCosineSimilarity(x._2, userMatrixReviews)))
 
-    // Map similarities to index
-    val mappedSimilarities = similarities.zipWithIndex.map(x => (x._2, x._1._2)).filter(_._2._2 > coOccuranceThreshold)
-    mappedSimilarities.foreach(x => println(x._1 + " " + x._2))
 
     // filter out users with less than coOccuranceThreshold co-occurrences
-    // .filter(_._2._2 > coOccuranceThreshold)
+    .filter(_._2._2 > coOccuranceThreshold)
 
     // Print similarities
     similarities.foreach(x => println(x._2))
 
     // Find the most similar user to user 3
-    val mostSimilarUser = mappedSimilarities.maxBy(_._2._1)
+    val mostSimilarUser = similarities.maxBy(_._2._1)
     println("mostSimilarUser")
     println(mostSimilarUser)
-
-    // val mostSimilarUserIndex = filteredUsersMapIndex.groupBy(_._2).mapValues(_.keys)(mostSimilarUser._1).last
-    // println("mostSimilarUserIndex")
-    // println(mostSimilarUserIndex)
-    
-    // println("usersMapIndex")
-    // println(usersMapIndex)
-    // println(usersMapIndex.groupBy(_._2).mapValues(_.keys)(mostSimilarUserIndex.toInt))
   }
 }

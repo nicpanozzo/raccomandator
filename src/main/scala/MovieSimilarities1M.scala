@@ -146,7 +146,7 @@ object MovieSimilarities1M {
     
     if (args.length > 0) {
       val scoreThreshold = 0.97
-      val coOccurenceThreshold = 1000.0
+      val coOccurenceThreshold = 50.0
       
       val movieID:Int = args(0).toInt
       
