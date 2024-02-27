@@ -9,16 +9,16 @@ import com.example.ALSraccomandator
 object UserSimilarities1 {
 
     val coOccuranceThreshold = 0.0
-    val ratingThreshold = 4.0
-    val numReviewsThreshold = 0
-    val numSimilarUsers = 5
+    // val ratingThreshold = 4.0
+    val numReviewsThreshold = 10
+    val numSimilarUsers = 50
     val numRecommendations = 10
   
   /** 
    * Load up a Map of movie IDs to movie names.
    * dataPath: Path to the directory containing the movie data files.
    */
-  def loadMovieNames(dataPath:String) : Map[Int, String] = {
+  def loadMovieNames(dataPath:String, sc: SparkContext) : Map[Int, String] = {
     
     // Handle character encoding issues:
     implicit val codec = Codec("UTF-8")
@@ -26,15 +26,15 @@ object UserSimilarities1 {
     codec.onUnmappableCharacter(CodingErrorAction.REPLACE)
 
     // Create a Map of Ints to Strings, and populate it from movies.dat file.
-    var movieNames:Map[Int, String] = Map()
+    // var movieNames:Map[Int, String] = Map()
     
-    val lines = Source.fromFile(dataPath + "movies.dat").getLines()
-    for (line <- lines) {
-      var fields = line.split("::")
-      if (fields.length > 1) {
-        movieNames += (fields(0).toInt -> fields(1))
-      }
-    }
+    val movieNames = sc.textFile("gs://raccomandator/datasets/movies.dat").map(l => l.split("::")).map(l => (l(0).toInt -> l(1))).collect().toMap
+    // for (line <- lines) {
+    //   var fields = line.split("::")
+    //   if (fields.length > 1) {
+    //     movieNames += (fields(0).toInt -> fields(1))
+    //   }
+    // }
     
     return movieNames
   }
@@ -88,16 +88,18 @@ object UserSimilarities1 {
     println("\nLoading movie names...")
     
     // Path to the directory containing the movie data files
-    val dataPath = if (sc.master == "local[*]") {
-      "datasets/"
-    } else {
-      "gs://raccomandator/"
-    }
+    // val dataPath = if (sc.master == "local[*]") {
+    //   "datasets/"
+    // } else {
+    //   "gs://raccomandator/"
+    // }
+    // load movie names from movies.dat file in gcloud bucket named raccomandator
+    val dataPath = "gs:///raccomandator/datasets/"
 
     // Load movie names from movies.dat file
-    val nameDict = loadMovieNames(dataPath)
+    val nameDict = loadMovieNames(dataPath, sc)
     
-    val ratingsData = sc.textFile(dataPath + "ratings.dat")
+    val ratingsData = sc.textFile("gs://raccomandator/datasets/ratings.dat")
     val ratings = ratingsData.map(l => l.split("::")).map(l => (l(0).toInt, (l(1).toInt, l(2).toDouble)))
 
 
@@ -119,7 +121,7 @@ object UserSimilarities1 {
     // (MovieID, MovieName)
     // val movies = moviesTxt.split('\n').map(l => l.split("::")).map(l => (l(0).toInt, l(1)))
 
-    val moviesData = sc.textFile(dataPath + "movies.dat")
+    val moviesData = sc.textFile("gs://raccomandator/datasets/movies.dat")
     val movies = moviesData.map(l => l.split("::")).map(l => (l(0).toInt, l(1)))
 
     val moviesIndexList = nameDict.map(x => x._1).toList

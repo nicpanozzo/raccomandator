@@ -68,5 +68,7 @@ gsutil rm -r gs://raccomandator
 - [x] aggiungere threshold per le co occorrenze (post cosine similarity)
 - [x] rifare la seconda matrice cosi che usi la map 
 
-
+ 4373  sbt assembly
+ 4374  gsutil cp target/scala-2.12/raccomandator-assembly-0.1.2-SNAPSHOT.jar gs://raccomandator
+ 4375  gcloud dataproc jobs submit spark \\n    --cluster=racclusingle \\n    --class=UserSimilarities1 \\n    --jars=gs://raccomandator/raccomandator-assembly-0.1.2-SNAPSHOT.jar \\n    --region=us-central1 \\n    -- 6666
 

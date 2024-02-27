@@ -48,10 +48,10 @@ while getopts ":c:b:d:n:y:r:h" opt; do
 done
 
 # Your script logic goes here
-echo " gcloud storage buckets create gs://$bucketName --location=$region"
-echo " gsutil cp $jarFile gs://$bucketName"
-echo " gsutil cp $data gs://$bucketName"
-echo " gcloud dataproc clusters import $clusterName --source $clusterYaml --region=$region"
+gcloud storage buckets create gs://$bucketName --location=$region
+gsutil cp $jarFile gs://$bucketName 
+gsutil cp $data gs://$bucketName
+gcloud dataproc clusters import $clusterName --source $clusterYaml --region=$region
 
 
 # Example usage:

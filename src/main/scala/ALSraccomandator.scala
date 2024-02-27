@@ -55,12 +55,12 @@ class ALSraccomandator(sc: SparkContext, user: (Int, Array[Double]), dataset: RD
     val recommendations = model.recommendProducts(userID, numberOfResults + user._2.filter(x => x != 0.0).size)
 
     // remove already rated movies
-    val recommendationsFiltered = recommendations.filter(x => user._2(x.product - 1) == 0.0).take(numberOfResults)
+    // val recommendationsFiltered = recommendations.filter(x => user._2(x.product - 1) == 0.0).take(numberOfResults)
 
     // for (recommendation <- recommendations) {
       // println( nameDict(recommendation.product.toInt) + " score " + recommendation.rating )
     // }
-    return recommendationsFiltered
+    return recommendations
 
   }
 }
