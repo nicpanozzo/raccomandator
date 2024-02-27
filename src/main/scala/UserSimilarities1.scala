@@ -4,6 +4,8 @@ import scala.io.Codec
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
+import com.example.ALSraccomandator
+
 object UserSimilarities1 {
 
     val coOccuranceThreshold = 0.0
@@ -26,7 +28,7 @@ object UserSimilarities1 {
     // Create a Map of Ints to Strings, and populate it from movies.dat file.
     var movieNames:Map[Int, String] = Map()
     
-    val lines = Source.fromFile(dataPath + "moviesProva.dat").getLines()
+    val lines = Source.fromFile(dataPath + "movies.dat").getLines()
     for (line <- lines) {
       var fields = line.split("::")
       if (fields.length > 1) {
@@ -95,7 +97,7 @@ object UserSimilarities1 {
     // Load movie names from movies.dat file
     val nameDict = loadMovieNames(dataPath)
     
-    val ratingsData = sc.textFile(dataPath + "ratingsProva.dat")
+    val ratingsData = sc.textFile(dataPath + "ratings.dat")
     val ratings = ratingsData.map(l => l.split("::")).map(l => (l(0).toInt, (l(1).toInt, l(2).toDouble)))
 
 
@@ -117,7 +119,7 @@ object UserSimilarities1 {
     // (MovieID, MovieName)
     // val movies = moviesTxt.split('\n').map(l => l.split("::")).map(l => (l(0).toInt, l(1)))
 
-    val moviesData = sc.textFile(dataPath + "moviesProva.dat")
+    val moviesData = sc.textFile(dataPath + "movies.dat")
     val movies = moviesData.map(l => l.split("::")).map(l => (l(0).toInt, l(1)))
 
     val moviesIndexList = nameDict.map(x => x._1).toList
@@ -141,7 +143,7 @@ object UserSimilarities1 {
 
     // print useR
     println("useR")
-    useR.foreach(x => println(x._1 + " " + x._2.mkString(" ")))
+    // useR.foreach(x => println(x._1 + " " + x._2.mkString(" ")))
     // Fill userReviews with user ratings
     userReviews = useR.mapValues(x => mapToArray(x.toMap, moviesSize, 0.0))
 
@@ -153,7 +155,7 @@ object UserSimilarities1 {
 
     // print user reviews filled with 0s and scores
     println("userReviews")
-    userReviews.foreach(x => println(x._1 + " " + x._2.mkString(" ")))
+    // userReviews.foreach(x => println(x._1 + " " + x._2.mkString(" ")))
 
     println("moviesMapIdToIndex")
     println()
@@ -167,34 +169,52 @@ object UserSimilarities1 {
     }
     val userMatrixReviews = userReviews.lookup(userID.toString).headOption.getOrElse(Array.empty[Double])
     
-    var filteredUserRatings = userReviews.filter(x => x._2.filter(x => x != 0.0).size > numReviewsThreshold)
+    var filteredUserReviews = userReviews.filter(x => x._2.filter(x => x != 0.0).size > numReviewsThreshold)
 
-    if (filteredUserRatings.isEmpty) {
+    if (filteredUserReviews.isEmpty) {
       println("No users with more than " + numReviewsThreshold + " reviews found")
       return
     }
 
     // remove user from filteredUserRatings
-    filteredUserRatings = filteredUserRatings.filter(x => x._1 != userID.toString)
+    filteredUserReviews = filteredUserReviews.filter(x => x._1 != userID.toString)
 
 
     // Print the user-movie rating matrix
     println("filteredUserMatrix")
-    filteredUserRatings.foreach(x => println(x._1 + " " + x._2.mkString(" ")))
+    // filteredUserReviews.foreach(x => println(x._1 + " " + x._2.mkString(" ")))
 
     // Compute cosine similarity for each user
-    val similarities = filteredUserRatings.map(x => (x._1, computeCosineSimilarity(x._2, userMatrixReviews)))
+    val similarities = filteredUserReviews.map(x => (x._1, computeCosineSimilarity(x._2, userMatrixReviews)))
 
 
     // filter out users with less than coOccuranceThreshold co-occurrences
     .filter(_._2._2 > coOccuranceThreshold)
 
     // Print similarities
-    similarities.foreach(x => println(x._2))
+    // similarities.foreach(x => println(x._2))
 
     // Find the most similar user to user 3
     val mostSimilarUser = similarities.collect().maxBy(_._2._1)
     println("mostSimilarUser")
     println(mostSimilarUser)
+
+    val mostSimilarUsers = similarities.takeOrdered(numSimilarUsers)(Ordering[Double].reverse.on(x => x._2._1)).map(x => x._1).take(numSimilarUsers)
+
+    println("mostSimilarUsers")
+    println(mostSimilarUsers.mkString(" "))
+
+    val mostSimilarRatings = userRatings.filter(x => mostSimilarUsers.contains(x._1))
+
+    // add user ratings to mostSimilarRatings
+    val mostSimilarRatingsWithUser = mostSimilarRatings ++ userRatings.filter(x => x._1 == userID.toString)
+
+    println("\nTop 10 recommendations:")
+
+    val raccomandator = new ALSraccomandator(sc, (userID, userMatrixReviews), mostSimilarRatingsWithUser)
+
+    val recommendations = raccomandator.evaluate(20, 8, 10)
+    println("DONEEEEE")
+    recommendations.foreach(x => println(nameDict(x.product.toInt) + " score " + x.rating))
   }
 }

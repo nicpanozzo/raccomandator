@@ -60,7 +60,7 @@ gsutil rm -r gs://raccomandator
 # TODO
 - [ ] configurare ambienti locale, low cost, high performance e dataset differenti
 - [ ] uniformare dataset per ML e SC
-- [ ] modificare SC che prenda in input un utente(cioè basi la raccomandazione su una serie di recensioni e non su un film). Idea: Vettorializzare gli utenti e trovare i piu vicini
+- [x] modificare SC che prenda in input un utente(cioè basi la raccomandazione su una serie di recensioni e non su un film). Idea: Vettorializzare gli utenti e trovare i piu vicini
 - [ ] unire ML e SC ponderando gli score
 
 - [x] filtrare utenti con poche recensioni (pre cosine similarity)
