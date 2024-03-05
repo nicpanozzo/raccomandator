@@ -5,6 +5,7 @@ import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
 import com.example.ALSraccomandator
+import com.example.Raccomandator
 
 object UserSimilarities1 {
 
@@ -13,12 +14,24 @@ object UserSimilarities1 {
     val numReviewsThreshold = 10
     val numSimilarUsers = 50
     val numRecommendations = 10
+
+    val localPath = "datasets/"
+    val remotePath = "gs://raccomandator/datasets/"
+
+    val smallDatasetLocation = "small/"
+    val largeDatasetLocation = "large/"
+    val testDatasetLocation = "test/"
+
+    val moviesFile = "movies.dat"
+    val ratingsFile = "ratings.dat"
+
+    val dataPath = localPath + testDatasetLocation
   
   /** 
    * Load up a Map of movie IDs to movie names.
    * dataPath: Path to the directory containing the movie data files.
    */
-  def loadMovieNames(dataPath:String, sc: SparkContext) : Map[Int, String] = {
+  def loadMovieNames(sc: SparkContext) : RDD[(Int, String)] = {
     
     // Handle character encoding issues:
     implicit val codec = Codec("UTF-8")
@@ -26,15 +39,7 @@ object UserSimilarities1 {
     codec.onUnmappableCharacter(CodingErrorAction.REPLACE)
 
     // Create a Map of Ints to Strings, and populate it from movies.dat file.
-    // var movieNames:Map[Int, String] = Map()
-    
-    val movieNames = sc.textFile("gs://raccomandator/datasets/movies.dat").map(l => l.split("::")).map(l => (l(0).toInt -> l(1))).collect().toMap
-    // for (line <- lines) {
-    //   var fields = line.split("::")
-    //   if (fields.length > 1) {
-    //     movieNames += (fields(0).toInt -> fields(1))
-    //   }
-    // }
+    val movieNames = sc.textFile(dataPath + moviesFile).map(l => l.split("::")).map(l => (l(0).toInt -> l(1)))
     
     return movieNames
   }
@@ -87,51 +92,26 @@ object UserSimilarities1 {
 
     println("\nLoading movie names...")
     
-    // Path to the directory containing the movie data files
-    // val dataPath = if (sc.master == "local[*]") {
-    //   "datasets/"
-    // } else {
-    //   "gs://raccomandator/"
-    // }
-    // load movie names from movies.dat file in gcloud bucket named raccomandator
-    val dataPath = "gs:///raccomandator/datasets/"
-
-    // Load movie names from movies.dat file
-    val nameDict = loadMovieNames(dataPath, sc)
+    val ratingsData = sc.textFile(dataPath + ratingsFile)
     
-    val ratingsData = sc.textFile("gs://raccomandator/datasets/ratings.dat")
+    // (UserID, (MovieID, Rating))
     val ratings = ratingsData.map(l => l.split("::")).map(l => (l(0).toInt, (l(1).toInt, l(2).toDouble)))
 
+    // (MovieID, Title)
+    // Load movie names from movies.dat file
+    val movies = loadMovieNames(sc)
 
-    // Example data for demonstration purposes
-//     val dataTxt = """1::10::5::900909
-// 1::11::5::900909
-// 2::11::1::900909
-// 3::10::5::909090090
-// 3::11::1::909090090"""
-
-    // (UserID, (MovieID, Rating))
-    // val data = dataTxt.split('\n').map(l => l.split("::")).map(l => (l(0).toInt, (l(1).toInt, l(2).toDouble)))
-
-    // Example movie data for demonstration purposes
-//     val moviesTxt = """10::GoldenEye (1995)::Action|Adventure|Thriller
-// 11::American President, The (1995)::Comedy|Drama|Romance
-// 12::Dracula: Dead and Loving It (1995)::Comedy|Horror"""
-
-    // (MovieID, MovieName)
-    // val movies = moviesTxt.split('\n').map(l => l.split("::")).map(l => (l(0).toInt, l(1)))
-
-    val moviesData = sc.textFile("gs://raccomandator/datasets/movies.dat")
-    val movies = moviesData.map(l => l.split("::")).map(l => (l(0).toInt, l(1)))
-
-    val moviesIndexList = nameDict.map(x => x._1).toList
+    // Create index mappings for movies List[Int]
+    val moviesIndexList = movies.map(_._1).collect().toList.sorted
 
     val moviesSize = movies.count().toInt
 
 
+    // (UserID, Iterable[(MovieID, Rating)]
     // Group ratings by user ID, filter out users with less than numReviewsThreshold reviews
     val allUserRatings: RDD[(String, Iterable[(Int, Double)])] = ratings.groupBy(_._1.toString).mapValues(_.map(_._2))    
 
+    // (UserID, Iterable[(MovieID, Rating)]
     // Filter out users with less than numReviewsThreshold reviews
     val userRatings = allUserRatings // .filter(_._2.size > numReviewsThreshold)
 
@@ -139,8 +119,10 @@ object UserSimilarities1 {
     // val usersMapIdToIndex: Map[String, Int] = userRatings.keys.zipWithIndex.toMap
     // val moviesMapIdToIndex: Map[String, Int] = movies.map(_._1.toString).zipWithIndex.toMap
 
+    // (UserID, Array[Double]) array riempito di 0.0
     var userReviews = userRatings.mapValues(x => Array.fill(moviesSize)(0.0))
 
+    // (UserID, Array[Double]) array riempito con i voti
     val useR = userRatings.map(x => (x._1, x._2.map(x => (moviesIndexList.indexOf(x._1), x._2))))
 
     // print useR
@@ -213,10 +195,10 @@ object UserSimilarities1 {
 
     println("\nTop 10 recommendations:")
 
-    val raccomandator = new ALSraccomandator(sc, (userID, userMatrixReviews), mostSimilarRatingsWithUser)
+    val raccomandator: Raccomandator = new ALSraccomandator(sc, (userID, userMatrixReviews), mostSimilarRatingsWithUser)
 
     val recommendations = raccomandator.evaluate(20, 8, 10)
     println("DONEEEEE")
-    recommendations.foreach(x => println(nameDict(x.product.toInt) + " score " + x.rating))
+    recommendations.foreach(x => println(movies.collect()(x.product.toInt) + " score " + x.rating))
   }
 }

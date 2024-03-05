@@ -13,7 +13,11 @@ import org.apache.spark.SparkContext
 // type userRatings = (Int, Array[Double])
 //   type dataset = RDD[(String, Array[Double])]
 
-class ALSraccomandator(sc: SparkContext, user: (Int, Array[Double]), dataset: RDD[(String, Iterable[(Int, Double)])]) {
+trait Raccomandator {
+  def evaluate(numIterations:Int = 20, rank: Int = 8, numberOfResults: Int = 10): Array[Rating]
+}
+
+class ALSraccomandator(sc: SparkContext, user: (Int, Array[Double]), dataset: RDD[(String, Iterable[(Int, Double)])]) extends Raccomandator{
   
   
   

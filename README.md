@@ -72,3 +72,13 @@ gsutil rm -r gs://raccomandator
  4374  gsutil cp target/scala-2.12/raccomandator-assembly-0.1.2-SNAPSHOT.jar gs://raccomandator
  4375  gcloud dataproc jobs submit spark \\n    --cluster=racclusingle \\n    --class=UserSimilarities1 \\n    --jars=gs://raccomandator/raccomandator-assembly-0.1.2-SNAPSHOT.jar \\n    --region=us-central1 \\n    -- 6666
 
+
+
+gcloud dataproc jobs submit spark \    --cluster=racclusingle \                                    
+    --class=UserSimilarities1 \
+    --jars=gs://raccomandator/raccomandator-assembly-0.1.2-SNAPSHOT.jar \
+    --region=us-central1 \
+    -- 6666
+
+
+  gcloud dataproc clusters create ${CLUSTER} --project=${PROJECT} --region=${REGION} --single-node --enable-component-gateway --metric-sources=SPARK_HISTORY_SERVER
