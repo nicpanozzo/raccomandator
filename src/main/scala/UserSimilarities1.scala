@@ -39,8 +39,9 @@ object UserSimilarities1 {
     codec.onUnmappableCharacter(CodingErrorAction.REPLACE)
 
     // Create a Map of Ints to Strings, and populate it from movies.dat file.
-    val movieNames = sc.textFile(dataPath + moviesFile).map(l => l.split("::")).map(l => (l(0).toInt -> l(1)))
-    
+    val file = sc.textFile(dataPath + moviesFile)
+    val movieNames = file.map(l => l.split("::")).map(l => (l(0).toInt -> l(1)))
+
     return movieNames
   }
 
@@ -102,7 +103,7 @@ object UserSimilarities1 {
     val movies = loadMovieNames(sc)
 
     // Create index mappings for movies List[Int]
-    val moviesIndexList = movies.map(_._1).collect().toList.sorted
+    // val moviesIndexList = movies.map(_._1).collect().toList.sorted
 
     val moviesSize = movies.count().toInt
 
@@ -120,16 +121,16 @@ object UserSimilarities1 {
     // val moviesMapIdToIndex: Map[String, Int] = movies.map(_._1.toString).zipWithIndex.toMap
 
     // (UserID, Array[Double]) array riempito di 0.0
-    var userReviews = userRatings.mapValues(x => Array.fill(moviesSize)(0.0))
+    // var userReviews = userRatings.mapValues(x => Array.fill(moviesSize)(0.0))
 
     // (UserID, Array[Double]) array riempito con i voti
-    val useR = userRatings.map(x => (x._1, x._2.map(x => (moviesIndexList.indexOf(x._1), x._2))))
+    // val useR = userRatings.map(x => (x._1, x._2.map(x => (moviesIndexList.indexOf(x._1), x._2))))
 
     // print useR
     println("useR")
     // useR.foreach(x => println(x._1 + " " + x._2.mkString(" ")))
     // Fill userReviews with user ratings
-    userReviews = useR.mapValues(x => mapToArray(x.toMap, moviesSize, 0.0))
+    val userReviews = userRatings.mapValues(x => mapToArray(x.toMap, moviesSize, 0.0))
 
    
 
@@ -147,11 +148,13 @@ object UserSimilarities1 {
 
     val userID = args(0).toInt
 
-    if (useR.lookup(userID.toString).isEmpty) {
+    val userReviewsArray = userReviews.lookup(userID.toString).headOption.getOrElse(Array.empty[Double])
+
+    if (userReviewsArray.isEmpty) {
       println("User ID not found")
       return
     }
-    val userMatrixReviews = userReviews.lookup(userID.toString).headOption.getOrElse(Array.empty[Double])
+    // val userMatrixReviews = userReviews.lookup(userID.toString).headOption.getOrElse(Array.empty[Double])
     
     var filteredUserReviews = userReviews.filter(x => x._2.filter(x => x != 0.0).size > numReviewsThreshold)
 
@@ -161,7 +164,7 @@ object UserSimilarities1 {
     }
 
     // remove user from filteredUserRatings
-    filteredUserReviews = filteredUserReviews.filter(x => x._1 != userID.toString)
+    // filteredUserReviews = filteredUserReviews.filter(x => x._1 != userID.toString)
 
 
     // Print the user-movie rating matrix
@@ -169,33 +172,35 @@ object UserSimilarities1 {
     // filteredUserReviews.foreach(x => println(x._1 + " " + x._2.mkString(" ")))
 
     // Compute cosine similarity for each user
-    val similarities = filteredUserReviews.map(x => (x._1, computeCosineSimilarity(x._2, userMatrixReviews)))
+    val similarities = filteredUserReviews.map(x => (x._1, computeCosineSimilarity(x._2, userReviewsArray)))
 
 
     // filter out users with less than coOccuranceThreshold co-occurrences
     .filter(_._2._2 > coOccuranceThreshold)
 
-    // Print similarities
-    // similarities.foreach(x => println(x._2))
 
-    // Find the most similar user to user 3
-    val mostSimilarUser = similarities.collect().maxBy(_._2._1)
-    println("mostSimilarUser")
-    println(mostSimilarUser)
+    // (UserID, (CosineSimilarity, Co-occurrences))
+    // Find the most similar user to the input user
+    val cosineSimilarities = similarities.sortBy(_._2._1, false)
 
-    val mostSimilarUsers = similarities.takeOrdered(numSimilarUsers)(Ordering[Double].reverse.on(x => x._2._1)).map(x => x._1).take(numSimilarUsers)
+    // val mostSimilarUser = cosineSimilarities.first()
+    // println("mostSimilarUser")
+    // println(mostSimilarUser)
+
+    val bestSimilarities = cosineSimilarities.take(numSimilarUsers)
 
     println("mostSimilarUsers")
-    println(mostSimilarUsers.mkString(" "))
+    println(bestSimilarities.mkString(" "))
 
-    val mostSimilarRatings = userRatings.filter(x => mostSimilarUsers.contains(x._1))
+    val mostSimilarUsers = sc.parallelize(bestSimilarities)
+
+    val mostSimilarRatings = userRatings.join(mostSimilarUsers)
 
     // add user ratings to mostSimilarRatings
-    val mostSimilarRatingsWithUser = mostSimilarRatings ++ userRatings.filter(x => x._1 == userID.toString)
 
     println("\nTop 10 recommendations:")
 
-    val raccomandator: Raccomandator = new ALSraccomandator(sc, (userID, userMatrixReviews), mostSimilarRatingsWithUser)
+    val raccomandator: Raccomandator = new ALSraccomandator(sc, (userID, userReviewsArray), mostSimilarRatings.map(x => (x._1, x._2._1)))
 
     val recommendations = raccomandator.evaluate(20, 8, 10)
     println("DONEEEEE")
