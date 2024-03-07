@@ -22,11 +22,12 @@ object ReplaceMovieIds {
     import spark.implicits._
     // Read movies CSV file
 
-    if (args.length < 1) {
+    if (args.length < 2) {
       println("Usage: ReplaceMovieIds <movies.csv>")
       System.exit(1)
     }
 
+    // Takes the first argument as the path to the movies CSV file and the second argument as the file extension
     val path = args(0)
     val extension = args(1)
   
