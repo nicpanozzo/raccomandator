@@ -13,11 +13,11 @@ import org.apache.spark.SparkConf
 
 object UserSimilarities1 {
 
-    val coOccuranceThreshold = 0.0
+    var coOccuranceThreshold = 0.0
     // val ratingThreshold = 4.0
-    val numReviewsThreshold = 10
-    val numSimilarUsers = 50
-    val numRecommendations = 10
+    var numReviewsThreshold = 10
+    var numSimilarUsers = 50
+    var numRecommendations = 10
 
     // val localPath = "datasets/"
     // val remotePath = "gs://raccomandator/datasets/"
@@ -91,20 +91,27 @@ object UserSimilarities1 {
       return (0.0, coOccurance)
     }
   }
-  
-  def main(args: Array[String]): Unit = {
 
 
+  def loadDefaultConfig(): SparkConf = {
     val configFile = Source.fromFile("conf.json").mkString
     val jsonMap = parse(configFile).values.asInstanceOf[Map[String, Any]]
-    val conf = if (jsonMap("destionation") == "remote") {
+
+    numRecommendations = jsonMap("numRecommendations").toString().toInt
+    numSimilarUsers = jsonMap("numSimilarUsers").toString().toInt
+    numReviewsThreshold = jsonMap("numReviewsThreshold").toString().toInt
+    coOccuranceThreshold = jsonMap("coOccuranceThreshold").toString().toDouble
+
+
+
+    return if (jsonMap("destionation") == "remote") {
       datasetLocation = jsonMap("remotePath").toString()
       print("remote")
       new SparkConf()
                   .setAppName("MovieSimilarities1M")
                   .setMaster("yarn")
-                  .set("spark.executor.instances", args(1))
-                  .set("spark.executor.cores", "4")
+                  .set("spark.executor.instances", jsonMap("executorInstances").toString())
+                  .set("spark.executor.cores", jsonMap("executorCores").toString())
     } else {
       datasetLocation = jsonMap("localPath").toString()
       print("local")
@@ -112,6 +119,15 @@ object UserSimilarities1 {
                   .setAppName("MovieSimilarities1M")
                   .setMaster("local[*]")
     }
+  }
+
+  
+  def main(args: Array[String]): Unit = {
+
+
+    val configFile = Source.fromFile("conf.json").mkString
+    val jsonMap = parse(configFile).values.asInstanceOf[Map[String, Any]]
+    val conf = loadDefaultConfig()
 
 
     
