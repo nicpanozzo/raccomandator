@@ -1,0 +1,15 @@
+
+{
+  "numReviewsThreshold": 10,
+  "numSimilarUsers": 50,
+  "numRecommendations": 10,
+  "destionation": "local",
+  "localPath": "datasets/",
+  "remotePath": "gs://raccomandator/datasets/",
+  "smallDatasetLocation": "small/",
+  "largeDatasetLocation": "large/",
+  "testDatasetLocation": "test/",
+  "moviesFile": "movies.dat",
+  "ratingsFile": "ratings.dat",
+  "datasetType": "test/"
+}

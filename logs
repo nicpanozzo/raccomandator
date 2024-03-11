@@ -1,4 +1,4 @@
-
+local
 Loading movie names...
 useR
 userReviews
@@ -17,13 +17,13 @@ Ratings for user ID 1:
 
 Top 10 recommendations:
 DONEEEEE
-(1236,Duck Soup (1933)) score 7.3651303026453645
-(2602,Notting Hill (1999)) score 6.817051735446685
-(2290,Waking Ned Devine (1998)) score 6.587547820134223
-(999,Old Yeller (1957)) score 6.512998392751967
-(3606,White Christmas (1954)) score 6.5108935438521
-(768,Trainspotting (1996)) score 6.403881820018108
-(2625,Big Daddy (1999)) score 6.376203761995891
-(3740,What About Bob? (1991)) score 6.370720178660033
-(1998,Doctor Zhivago (1965)) score 6.213458394916628
-(3382,Guess Who's Coming to Dinner (1967)) score 5.909138574095486
+(314,Santa Clause, The (1994)) score 5.98234098580261
+(2839,Boys Don't Cry (1999)) score 5.728918844610567
+(2928,Being John Malkovich (1999)) score 5.634800288283831
+(259,Little Princess, A (1995)) score 5.529520487473054
+(941,It's a Wonderful Life (1946)) score 5.508136300338334
+(3379,Good Morning, Vietnam (1987)) score 5.489574122446458
+(2670,Color Purple, The (1985)) score 5.396787861779488
+(898,Some Like It Hot (1959)) score 5.389930645302504
+(1247,Manchurian Candidate, The (1962)) score 5.38554846122268
+(3327,Muppet Movie, The (1979)) score 5.343797185011118

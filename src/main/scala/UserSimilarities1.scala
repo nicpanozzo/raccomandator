@@ -7,6 +7,10 @@ import org.apache.spark.rdd.RDD
 import com.example.ALSraccomandator
 import com.example.Raccomandator
 
+import org.json4s._ 
+import org.json4s.jackson.JsonMethods._
+import org.apache.spark.SparkConf
+
 object UserSimilarities1 {
 
     val coOccuranceThreshold = 0.0
@@ -15,23 +19,25 @@ object UserSimilarities1 {
     val numSimilarUsers = 50
     val numRecommendations = 10
 
-    val localPath = "datasets/"
-    val remotePath = "gs://raccomandator/datasets/"
+    // val localPath = "datasets/"
+    // val remotePath = "gs://raccomandator/datasets/"
 
-    val smallDatasetLocation = "small/"
-    val largeDatasetLocation = "large/"
-    val testDatasetLocation = "test/"
+    // val smallDatasetLocation = "small/"
+    // val largeDatasetLocation = "large/"
+    // val testDatasetLocation = "test/"
 
-    val moviesFile = "movies.dat"
-    val ratingsFile = "ratings.dat"
+    // val moviesFile = "movies.dat"
+    // val ratingsFile = "ratings.dat"
 
-    val dataPath = localPath + testDatasetLocation
+    // val dataPath = localPath + testDatasetLocation
+
+    var datasetLocation = "default"
   
   /** 
    * Load up a Map of movie IDs to movie names.
    * dataPath: Path to the directory containing the movie data files.
    */
-  def loadMovieNames(sc: SparkContext) : RDD[(Int, String)] = {
+  def loadMovieNames(sc: SparkContext, moviePath: String) : RDD[(Int, String)] = {
     
     // Handle character encoding issues:
     implicit val codec = Codec("UTF-8")
@@ -39,7 +45,7 @@ object UserSimilarities1 {
     codec.onUnmappableCharacter(CodingErrorAction.REPLACE)
 
     // Create a Map of Ints to Strings, and populate it from movies.dat file.
-    val file = sc.textFile(dataPath + moviesFile)
+    val file = sc.textFile(moviePath)
     val movieNames = file.map(l => l.split("::")).map(l => (l(0).toInt -> l(1)))
 
     return movieNames
@@ -89,18 +95,41 @@ object UserSimilarities1 {
   def main(args: Array[String]): Unit = {
 
 
-    val sc = new SparkContext("local[*]", "MovieSimilarities1M")
+    val configFile = Source.fromFile("conf.json").mkString
+    val jsonMap = parse(configFile).values.asInstanceOf[Map[String, Any]]
+    val conf = if (jsonMap("destionation") == "remote") {
+      datasetLocation = jsonMap("remotePath").toString()
+      print("remote")
+      new SparkConf()
+                  .setAppName("MovieSimilarities1M")
+                  .setMaster("yarn")
+                  .set("spark.executor.instances", args(1))
+                  .set("spark.executor.cores", "4")
+    } else {
+      datasetLocation = jsonMap("localPath").toString()
+      print("local")
+      new SparkConf()
+                  .setAppName("MovieSimilarities1M")
+                  .setMaster("local[*]")
+    }
+
+
+    
+    val sc = new SparkContext(conf)
+
+    val dataPath = datasetLocation + jsonMap("datasetType")
+
 
     println("\nLoading movie names...")
     
-    val ratingsData = sc.textFile(dataPath + ratingsFile)
+    val ratingsData = sc.textFile(dataPath + jsonMap("ratingsFile").toString())
     
     // (UserID, (MovieID, Rating))
     val ratings = ratingsData.map(l => l.split("::")).map(l => (l(0).toInt, (l(1).toInt, l(2).toDouble)))
 
     // (MovieID, Title)
     // Load movie names from movies.dat file
-    val movies = loadMovieNames(sc)
+    val movies = loadMovieNames(sc, dataPath + jsonMap("moviesFile").toString())
 
     // Create index mappings for movies List[Int]
     // val moviesIndexList = movies.map(_._1).collect().toList.sorted
