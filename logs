@@ -1,29 +1,107 @@
-local
-Loading movie names...
-useR
-userReviews
-moviesMapIdToIndex
-
-filteredUserMatrix
-mostSimilarUsers
-(1,(0.9999999999999999,53)) (5343,(0.41211706435523543,17)) (5190,(0.4118986232915036,18)) (1481,(0.39211038220634803,28)) (1283,(0.3865966372815084,18)) (5705,(0.36089838113994627,32)) (5762,(0.3556004763477445,39)) (1359,(0.350328759183502,21)) (1476,(0.33949606053026044,19)) (541,(0.3348640830906655,30)) (1858,(0.331176104900949,23)) (2177,(0.3248547069408705,31)) (4718,(0.32129863495436956,27)) (1850,(0.32124177831360634,19)) (681,(0.31933517628520763,14)) (2566,(0.3164811216190085,32)) (634,(0.31642595351395575,17)) (96,(0.3154229283570303,19)) (4705,(0.31192212751782594,33)) (2873,(0.31137827085986347,32)) (5887,(0.31112627808996307,20)) (2766,(0.31046109172762476,21)) (4361,(0.3091297842361857,23)) (1506,(0.3088460618056984,20)) (1697,(0.30745378072774043,38)) (2699,(0.30499385451189914,22)) (340,(0.3034189108464762,21)) (3752,(0.3033422315371901,25)) (2796,(0.3028337411670656,38)) (5920,(0.30143791065672404,24)) (1325,(0.3002178872422967,36)) (1112,(0.30020645486078923,44)) (184,(0.3001718885100022,17)) (6006,(0.3000414672910449,26)) (2350,(0.2992818767005999,23)) (5402,(0.2986497761271453,19)) (1348,(0.2957446982534523,25)) (1657,(0.295359942214761,14)) (2083,(0.29451213033336254,12)) (2769,(0.29423936890494085,24)) (4700,(0.2937563537323532,23)) (626,(0.293482410051744,18)) (2073,(0.2916511962539052,47)) (2689,(0.2912421501500072,20)) (2379,(0.2908168061909318,10)) (80,(0.2907113513022658,15)) (1344,(0.28924183604805315,17)) (1353,(0.28707698604688675,18)) (840,(0.28687437866529203,30)) (956,(0.2863166937707055,21))
-
-Top 10 recommendations:
-Raccomending movies ...
-
-Training recommendation model...
-
-Ratings for user ID 1:
-
-Top 10 recommendations:
-DONEEEEE
-(314,Santa Clause, The (1994)) score 5.98234098580261
-(2839,Boys Don't Cry (1999)) score 5.728918844610567
-(2928,Being John Malkovich (1999)) score 5.634800288283831
-(259,Little Princess, A (1995)) score 5.529520487473054
-(941,It's a Wonderful Life (1946)) score 5.508136300338334
-(3379,Good Morning, Vietnam (1987)) score 5.489574122446458
-(2670,Color Purple, The (1985)) score 5.396787861779488
-(898,Some Like It Hot (1959)) score 5.389930645302504
-(1247,Manchurian Candidate, The (1962)) score 5.38554846122268
-(3327,Muppet Movie, The (1979)) score 5.343797185011118
+remote24/03/13 12:34:04 ERROR SparkContext: Error initializing SparkContext.
+java.net.ConnectException: Your endpoint configuration is wrong; For more details see:  http://wiki.apache.org/hadoop/UnsetHostnameOrPort
+	at java.base/jdk.internal.reflect.GeneratedConstructorAccessor13.newInstance(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:490)
+	at org.apache.hadoop.net.NetUtils.wrapWithMessage(NetUtils.java:913)
+	at org.apache.hadoop.net.NetUtils.wrapException(NetUtils.java:824)
+	at org.apache.hadoop.ipc.Client.getRpcResponse(Client.java:1616)
+	at org.apache.hadoop.ipc.Client.call(Client.java:1558)
+	at org.apache.hadoop.ipc.Client.call(Client.java:1455)
+	at org.apache.hadoop.ipc.ProtobufRpcEngine2$Invoker.invoke(ProtobufRpcEngine2.java:242)
+	at org.apache.hadoop.ipc.ProtobufRpcEngine2$Invoker.invoke(ProtobufRpcEngine2.java:129)
+	at com.sun.proxy.$Proxy30.getNewApplication(Unknown Source)
+	at org.apache.hadoop.yarn.api.impl.pb.client.ApplicationClientProtocolPBClientImpl.getNewApplication(ApplicationClientProtocolPBClientImpl.java:286)
+	at jdk.internal.reflect.GeneratedMethodAccessor4.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.apache.hadoop.io.retry.RetryInvocationHandler.invokeMethod(RetryInvocationHandler.java:422)
+	at org.apache.hadoop.io.retry.RetryInvocationHandler$Call.invokeMethod(RetryInvocationHandler.java:165)
+	at org.apache.hadoop.io.retry.RetryInvocationHandler$Call.invoke(RetryInvocationHandler.java:157)
+	at org.apache.hadoop.io.retry.RetryInvocationHandler$Call.invokeOnce(RetryInvocationHandler.java:95)
+	at org.apache.hadoop.io.retry.RetryInvocationHandler.invoke(RetryInvocationHandler.java:359)
+	at com.sun.proxy.$Proxy31.getNewApplication(Unknown Source)
+	at org.apache.hadoop.yarn.client.api.impl.YarnClientImpl.getNewApplication(YarnClientImpl.java:284)
+	at org.apache.hadoop.yarn.client.api.impl.YarnClientImpl.createApplication(YarnClientImpl.java:292)
+	at org.apache.spark.deploy.yarn.Client.submitApplication(Client.scala:200)
+	at org.apache.spark.scheduler.cluster.YarnClientSchedulerBackend.start(YarnClientSchedulerBackend.scala:62)
+	at org.apache.spark.scheduler.TaskSchedulerImpl.start(TaskSchedulerImpl.scala:222)
+	at org.apache.spark.SparkContext.<init>(SparkContext.scala:585)
+	at UserSimilarities1$.main(UserSimilarities1.scala:134)
+	at UserSimilarities1.main(UserSimilarities1.scala)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.apache.spark.deploy.JavaMainApplication.start(SparkApplication.scala:52)
+	at org.apache.spark.deploy.SparkSubmit.org$apache$spark$deploy$SparkSubmit$$runMain(SparkSubmit.scala:958)
+	at org.apache.spark.deploy.SparkSubmit.doRunMain$1(SparkSubmit.scala:180)
+	at org.apache.spark.deploy.SparkSubmit.submit(SparkSubmit.scala:203)
+	at org.apache.spark.deploy.SparkSubmit.doSubmit(SparkSubmit.scala:90)
+	at org.apache.spark.deploy.SparkSubmit$$anon$2.doSubmit(SparkSubmit.scala:1046)
+	at org.apache.spark.deploy.SparkSubmit$.main(SparkSubmit.scala:1055)
+	at org.apache.spark.deploy.SparkSubmit.main(SparkSubmit.scala)
+Caused by: java.net.ConnectException: Connection refused
+	at java.base/sun.nio.ch.SocketChannelImpl.checkConnect(Native Method)
+	at java.base/sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:777)
+	at org.apache.hadoop.net.SocketIOWithTimeout.connect(SocketIOWithTimeout.java:205)
+	at org.apache.hadoop.net.NetUtils.connect(NetUtils.java:586)
+	at org.apache.hadoop.ipc.Client$Connection.setupConnection(Client.java:711)
+	at org.apache.hadoop.ipc.Client$Connection.setupIOstreams(Client.java:833)
+	at org.apache.hadoop.ipc.Client$Connection.access$3800(Client.java:414)
+	at org.apache.hadoop.ipc.Client.getConnection(Client.java:1677)
+	at org.apache.hadoop.ipc.Client.call(Client.java:1502)
+	... 34 more
+Exception in thread "main" java.net.ConnectException: Your endpoint configuration is wrong; For more details see:  http://wiki.apache.org/hadoop/UnsetHostnameOrPort
+	at java.base/jdk.internal.reflect.GeneratedConstructorAccessor13.newInstance(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:490)
+	at org.apache.hadoop.net.NetUtils.wrapWithMessage(NetUtils.java:913)
+	at org.apache.hadoop.net.NetUtils.wrapException(NetUtils.java:824)
+	at org.apache.hadoop.ipc.Client.getRpcResponse(Client.java:1616)
+	at org.apache.hadoop.ipc.Client.call(Client.java:1558)
+	at org.apache.hadoop.ipc.Client.call(Client.java:1455)
+	at org.apache.hadoop.ipc.ProtobufRpcEngine2$Invoker.invoke(ProtobufRpcEngine2.java:242)
+	at org.apache.hadoop.ipc.ProtobufRpcEngine2$Invoker.invoke(ProtobufRpcEngine2.java:129)
+	at com.sun.proxy.$Proxy30.getNewApplication(Unknown Source)
+	at org.apache.hadoop.yarn.api.impl.pb.client.ApplicationClientProtocolPBClientImpl.getNewApplication(ApplicationClientProtocolPBClientImpl.java:286)
+	at jdk.internal.reflect.GeneratedMethodAccessor4.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.apache.hadoop.io.retry.RetryInvocationHandler.invokeMethod(RetryInvocationHandler.java:422)
+	at org.apache.hadoop.io.retry.RetryInvocationHandler$Call.invokeMethod(RetryInvocationHandler.java:165)
+	at org.apache.hadoop.io.retry.RetryInvocationHandler$Call.invoke(RetryInvocationHandler.java:157)
+	at org.apache.hadoop.io.retry.RetryInvocationHandler$Call.invokeOnce(RetryInvocationHandler.java:95)
+	at org.apache.hadoop.io.retry.RetryInvocationHandler.invoke(RetryInvocationHandler.java:359)
+	at com.sun.proxy.$Proxy31.getNewApplication(Unknown Source)
+	at org.apache.hadoop.yarn.client.api.impl.YarnClientImpl.getNewApplication(YarnClientImpl.java:284)
+	at org.apache.hadoop.yarn.client.api.impl.YarnClientImpl.createApplication(YarnClientImpl.java:292)
+	at org.apache.spark.deploy.yarn.Client.submitApplication(Client.scala:200)
+	at org.apache.spark.scheduler.cluster.YarnClientSchedulerBackend.start(YarnClientSchedulerBackend.scala:62)
+	at org.apache.spark.scheduler.TaskSchedulerImpl.start(TaskSchedulerImpl.scala:222)
+	at org.apache.spark.SparkContext.<init>(SparkContext.scala:585)
+	at UserSimilarities1$.main(UserSimilarities1.scala:134)
+	at UserSimilarities1.main(UserSimilarities1.scala)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.apache.spark.deploy.JavaMainApplication.start(SparkApplication.scala:52)
+	at org.apache.spark.deploy.SparkSubmit.org$apache$spark$deploy$SparkSubmit$$runMain(SparkSubmit.scala:958)
+	at org.apache.spark.deploy.SparkSubmit.doRunMain$1(SparkSubmit.scala:180)
+	at org.apache.spark.deploy.SparkSubmit.submit(SparkSubmit.scala:203)
+	at org.apache.spark.deploy.SparkSubmit.doSubmit(SparkSubmit.scala:90)
+	at org.apache.spark.deploy.SparkSubmit$$anon$2.doSubmit(SparkSubmit.scala:1046)
+	at org.apache.spark.deploy.SparkSubmit$.main(SparkSubmit.scala:1055)
+	at org.apache.spark.deploy.SparkSubmit.main(SparkSubmit.scala)
+Caused by: java.net.ConnectException: Connection refused
+	at java.base/sun.nio.ch.SocketChannelImpl.checkConnect(Native Method)
+	at java.base/sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:777)
+	at org.apache.hadoop.net.SocketIOWithTimeout.connect(SocketIOWithTimeout.java:205)
+	at org.apache.hadoop.net.NetUtils.connect(NetUtils.java:586)
+	at org.apache.hadoop.ipc.Client$Connection.setupConnection(Client.java:711)
+	at org.apache.hadoop.ipc.Client$Connection.setupIOstreams(Client.java:833)
+	at org.apache.hadoop.ipc.Client$Connection.access$3800(Client.java:414)
+	at org.apache.hadoop.ipc.Client.getConnection(Client.java:1677)
+	at org.apache.hadoop.ipc.Client.call(Client.java:1502)
+	... 34 more

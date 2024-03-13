@@ -14,5 +14,5 @@
   "testDatasetLocation": "test/",
   "moviesFile": "movies.dat",
   "ratingsFile": "ratings.dat",
-  "datasetType": "large/"
+  "datasetType": "test/"
 }
